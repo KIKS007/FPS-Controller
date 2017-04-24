@@ -41,10 +41,12 @@ public class FPSController : MonoBehaviour
 	private Vector3 _movement;
 	private Transform _mainCamera;
 	private Transform _bobbingParent;
+	private CharacterController _characterController;
 
 	void Start () 
 	{
 		_rigidbody = GetComponent<Rigidbody> ();
+		_characterController = GetComponent<CharacterController> ();
 		_mainCamera = GameObject.FindGameObjectWithTag ("MainCamera").transform;
 		_bobbingParent = _mainCamera.parent;
 	}
@@ -87,7 +89,9 @@ public class FPSController : MonoBehaviour
 		Vector3 velocityChange = (_movement - _rigidbody.velocity);
 		velocityChange.y = 0;
 
-		_rigidbody.AddForce (velocityChange, ForceMode.VelocityChange);
+		//_rigidbody.AddForce (velocityChange, ForceMode.VelocityChange);
+
+		_characterController.Move (_movement * Time.fixedDeltaTime);
 	}
 
 	void Gravity ()
