@@ -6,6 +6,8 @@ using DG.Tweening;
 public enum GroundState { Grounded, Falling, Jumping };
 public enum LeanState { Left, None, Right};
 
+[RequireComponent(typeof (CharacterController))]
+[RequireComponent(typeof (Rigidbody))]
 public class FPSController : MonoBehaviour 
 {
 	[Header ("Inputs")]
@@ -45,6 +47,7 @@ public class FPSController : MonoBehaviour
 
 	void Start () 
 	{
+		_characterController = GetComponent<CharacterController>();
 		_rigidbody = GetComponent<Rigidbody> ();
 		_characterController = GetComponent<CharacterController> ();
 		_mainCamera = GameObject.FindGameObjectWithTag ("MainCamera").transform;
@@ -69,7 +72,25 @@ public class FPSController : MonoBehaviour
 	void FixedUpdate () 
 	{
 		Gravity ();
-		Movement ();
+		//Movement ();
+
+		// always move along the camera forward as it is the direction that it being aimed at
+		Vector3 desiredMove = transform.forward * Input.GetAxisRaw (verticalMovement) + transform.right * Input.GetAxisRaw (horizontalMovement);
+
+		// get a normal for the surface that is being touched to move along it
+		RaycastHit hitInfo;
+		Physics.SphereCast(transform.position, _characterController.radius, Vector3.down, out hitInfo,
+			_characterController.height/2f, Physics.AllLayers, QueryTriggerInteraction.Ignore);
+		
+		desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
+
+		desiredMove.x *= movementSpeed;
+		desiredMove.y *= movementSpeed;
+
+		if(_characterController.isGrounded)
+		{
+			
+		}
 	}
 
 	void Movement ()
